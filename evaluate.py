@@ -32,7 +32,6 @@ def align_data(data):
     return data_aligned
 
 
-
 def interactive_shell(model):
     """Creates interactive shell to play with model
 
@@ -76,8 +75,8 @@ def main():
     model.restore_session(config.dir_model)
 
     # create dataset
-    test  = CoNLLDataset(config.filename_test, config.processing_word,
-                         config.processing_tag, config.max_iter)
+    test = CoNLLDataset(config.filename_test, config.processing_word,
+                        config.processing_tag, config.max_iter)
 
     # evaluate and interact
     model.evaluate(test)
