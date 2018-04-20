@@ -340,5 +340,22 @@ class NERModel(BaseModel):
             words = zip(*words)
         pred_ids, _ = self.predict_batch([words])
         preds = [self.idx_to_tag[idx] for idx in list(pred_ids[0])]
-
         return preds
+
+    def predict_test(self, test):
+        """Returns list of tags
+
+        Args:
+            words_raw: list of words (string), just one sentence (no batch)
+
+        Returns:
+            preds: list of tags (string), one for each word in the sentence
+
+        """
+        total_preds = []
+        for i, (words, labels) in enumerate(minibatches(test, self.config.batch_size)):
+            labels_predicted, sequence_lengths = self.predict_batch(words)
+            preds = [labels[:length] for labels, length in zip(labels_predicted, sequence_lengths)]
+            preds = [[self.idx_to_tag[label_id] for label_id in labels] for labels in preds]
+            total_preds += preds
+        return total_preds

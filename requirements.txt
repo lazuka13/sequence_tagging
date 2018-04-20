@@ -1,3 +1,2 @@
-tensorflow>=1.0
 numpy
-logging
+tensorflow-gpu==1.7.0
