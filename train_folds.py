@@ -1,16 +1,16 @@
 from model.data_utils import CoNLLDataset
 from model.ner_model import NERModel
 from model.config import Config
+from format_predictions import format_predictions
 
 from sklearn.model_selection import KFold
-import numpy as np
-from model.data_utils import minibatches
 import tensorflow as tf
+import numpy as np
 
 
 def main():
-    config = Config()
-    predictions_file = './data/predictions'
+    config = Config('./results/train_folds/')
+    train_predictions_file = './data/predictions/formatted_train_predictions.npy'
 
     kf = KFold(n_splits=5)
 
@@ -24,6 +24,7 @@ def main():
         train_dataset = train[train_ids]
         evaluate_dataset = train[evaluate_ids]
         tf.reset_default_graph()
+        config = Config('./results/train_folds/')
         model = NERModel(config)
         model.build()
         model.train(train_dataset, evaluate_dataset)
@@ -32,7 +33,8 @@ def main():
         model.close_session()
 
     predictions = np.array(predictions)
-    np.save(predictions_file, predictions)
+    formatted_predictions = format_predictions(predictions, 'train', config)
+    np.save(train_predictions_file, formatted_predictions)
 
 
 if __name__ == "__main__":

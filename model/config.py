@@ -5,8 +5,8 @@ from .data_utils import get_trimmed_glove_vectors, load_vocab, \
     get_processing_word
 
 
-class Config():
-    def __init__(self, load=True):
+class Config:
+    def __init__(self, dir_output, load=True):
         """Initialize hyperparameters and load vocabs
 
         Args:
@@ -15,6 +15,10 @@ class Config():
 
         """
         # directory for training outputs
+        self.dir_output = dir_output
+        self.dir_model = self.dir_output + "model.weights/"
+        self.path_log = self.dir_output + "log.txt"
+
         if not os.path.exists(self.dir_output):
             os.makedirs(self.dir_output)
 
@@ -52,11 +56,6 @@ class Config():
         self.embeddings = (get_trimmed_glove_vectors(self.filename_trimmed)
                            if self.use_pretrained else None)
 
-    # general config
-    dir_output = "results/test/"
-    dir_model = dir_output + "model.weights/"
-    path_log = dir_output + "log.txt"
-
     # embeddings
     dim_word = 300
     dim_char = 100
@@ -83,7 +82,7 @@ class Config():
 
     # training
     train_embeddings = False
-    nepochs = 15
+    nepochs = 25
     dropout = 0.5
     batch_size = 20
     lr_method = "adam"

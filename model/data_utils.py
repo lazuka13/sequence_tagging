@@ -302,6 +302,26 @@ def _pad_sequences(sequences, pad_tok, max_length):
     return sequence_padded, sequence_length
 
 
+def _pad_features_sequences(sequences, pad_tok, max_length):
+    """
+    Args:
+        sequences: a generator of list or tuple
+        pad_tok: the char to pad with
+
+    Returns:
+        a list of list where each sublist has same length
+    """
+    sequence_padded, sequence_length = [], []
+
+    for seq in sequences: # НЕСКОЛЬКО МАССИВОВ [ [0, 1, 1], [0, 0, 0] ...]
+        seq = list(seq)
+        seq_ = seq[:max_length] + [[0.0 for _ in range(30)] for _ in range(max(max_length - len(seq), 0))]
+        sequence_padded += [seq_]
+        sequence_length += [min(len(seq), max_length)]
+
+    return sequence_padded, sequence_length
+
+
 def pad_sequences(sequences, pad_tok, nlevels=1):
     """
     Args:
@@ -337,6 +357,13 @@ def pad_sequences(sequences, pad_tok, nlevels=1):
     return sequence_padded, sequence_length
 
 
+def pad_features_sequences(sequences, pad_tok):
+    max_length = max(map(lambda x: len(x), sequences))
+    sequence_padded, sequence_length = _pad_features_sequences(sequences,
+                                                               pad_tok, max_length)
+    return sequence_padded, sequence_length
+
+
 def minibatches(data, minibatch_size):
     """
     Args:
@@ -360,6 +387,32 @@ def minibatches(data, minibatch_size):
 
     if len(x_batch) != 0:
         yield x_batch, y_batch
+
+
+def minibatches_features(data, minibatch_size):
+    """
+    Args:
+        data: generator of (sentence, tags) tuples
+        minibatch_size: (int)
+
+    Yields:
+        list of tuples
+
+    """
+    x_batch, features_batch, y_batch = [], [], []
+    for (x, features, y) in data:
+        if len(x_batch) == minibatch_size:
+            yield x_batch, features_batch, y_batch
+            x_batch, features_batch, y_batch = [], [], []
+
+        if type(x[0]) == tuple:
+            x = zip(*x)
+        x_batch += [x]
+        y_batch += [y]
+        features_batch += [features]
+
+    if len(x_batch) != 0:
+        yield x_batch, features_batch, y_batch
 
 
 def get_chunk_type(tok, idx_to_tag):
